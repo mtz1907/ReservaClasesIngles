@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import EtiquetaNivel from './EtiquetaNivel';
 import { colors, spacing, radius, sombra, typography } from '../theme';
 import { formatearPrecio } from '../data/clases';
@@ -7,6 +8,7 @@ import { formatearPrecio } from '../data/clases';
 export default function Card({ clase, onPress }) {
   return (
     <Pressable style={[styles.tarjeta, sombra]} onPress={onPress}>
+      {/* Imagen principal y etiqueta */}
       <View style={styles.contenedorImagen}>
         <Image source={{ uri: clase.imagen }} style={styles.imagen} resizeMode="cover" />
         <View style={styles.posicionEtiqueta}>
@@ -14,15 +16,29 @@ export default function Card({ clase, onPress }) {
         </View>
       </View>
 
-      <View style={styles.contenido}>
-        <Text style={typography.subtitulo}>{clase.titulo}</Text>
-        <Text style={[typography.secundario, { marginVertical: spacing.xs }]}>
-          Prof: {clase.profesor.nombre} ({clase.profesor.pais})
+      {/* Cuerpo con la información de la clase */}
+      <View style={styles.cuerpo}>
+        <Text style={styles.titulo} numberOfLines={2}>
+          {clase.titulo}
         </Text>
 
-        <View style={styles.filaInfo}>
+        {/* Datos del Profesor con Avatar */}
+        <View style={styles.filaProfesor}>
+          <Image source={{ uri: clase.profesor.foto }} style={styles.avatar} />
+          <Text style={styles.profesor} numberOfLines={1}>
+            {clase.profesor.nombre} ({clase.profesor.pais})
+          </Text>
+        </View>
+
+        {/* Pie de la Tarjeta con Modalidad, Rating y Precio */}
+        <View style={styles.pie}>
+          <View style={styles.filaCentro}>
+            <Ionicons name="star" size={14} color={colors.acento} />
+            <Text style={styles.meta}>{clase.rating}</Text>
+            <Text style={styles.punto}>•</Text>
+            <Text style={styles.meta}>{clase.modalidad}</Text>
+          </View>
           <Text style={styles.precio}>{formatearPrecio(clase.precio)}</Text>
-          <Text style={typography.secundario}>{clase.modalidad} • {clase.duracion} min</Text>
         </View>
       </View>
     </Pressable>
@@ -32,37 +48,71 @@ export default function Card({ clase, onPress }) {
 const styles = StyleSheet.create({
   tarjeta: {
     backgroundColor: colors.superficie,
-    borderRadius: radius.md,
-    marginVertical: spacing.sm,
+    borderRadius: radius.lg,
     overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.borde,
+    marginBottom: spacing.lg,
   },
   contenedorImagen: {
-    height: 140,
+    height: 130,
     width: '100%',
     position: 'relative',
   },
   imagen: {
     width: '100%',
     height: '100%',
+    backgroundColor: colors.primarioSuave,
   },
   posicionEtiqueta: {
     position: 'absolute',
     top: spacing.sm,
     left: spacing.sm,
   },
-  contenido: {
-    padding: spacing.md,
+  cuerpo: {
+    padding: spacing.lg,
+    gap: spacing.sm,
   },
-  filaInfo: {
+  titulo: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: colors.texto,
+  },
+  filaProfesor: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    gap: spacing.sm,
+  },
+  avatar: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.borde,
+  },
+  profesor: {
+    fontSize: 13,
+    color: colors.textoSuave,
+    flexShrink: 1,
+  },
+  pie: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     marginTop: spacing.xs,
   },
+  filaCentro: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  meta: {
+    fontSize: 12,
+    color: colors.textoSuave,
+  },
+  punto: {
+    color: colors.borde,
+    marginHorizontal: 2,
+  },
   precio: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '800',
     color: colors.primario,
   },
