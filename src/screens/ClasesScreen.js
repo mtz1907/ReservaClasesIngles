@@ -1,35 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import Card from '../components/Card';
 import { CLASES, NIVELES } from '../data/clases';
 import { colors, spacing, radius, typography } from '../theme';
+import useResponsive from '../hooks/useResponsive';
 
 export default function ClasesScreen({ navigation }) {
   const insets = useSafeAreaInsets();
+  const { columnas, paddingHorizontal } = useResponsive();
+
   const [nivelSeleccionado, setNivelSeleccionado] = useState('Todos');
   const [busqueda, setBusqueda] = useState('');
 
-  // Filtrado dinámico
-  const clasesFiltradas = CLASES.filter((clase) => {
-    const coincideNivel =
-      nivelSeleccionado === 'Todos' || clase.nivel === nivelSeleccionado;
-    const coincideBusqueda =
-      clase.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
-      clase.profesor.nombre.toLowerCase().includes(busqueda.toLowerCase());
+  // Búsqueda memorizada con useMemo
+  const resultados = useMemo(() => {
+    const textoBusqueda = busqueda.trim().toLowerCase();
 
-    return coincideNivel && coincideBusqueda;
-  });
+    return CLASES.filter((clase) => {
+      const coincidenciaNivel =
+        nivelSeleccionado === 'Todos' || clase.nivel === nivelSeleccionado;
+
+      const coincidenciaTexto =
+        textoBusqueda === '' ||
+        clase.titulo.toLowerCase().includes(textoBusqueda) ||
+        clase.profesor.nombre.toLowerCase().includes(textoBusqueda);
+
+      return coincidenciaNivel && coincidenciaTexto;
+    });
+  }, [nivelSeleccionado, busqueda]);
 
   return (
-    <View
-      style={[
-        styles.pantalla,
-        { paddingTop: insets.top + spacing.md }
-      ]}
-    >
-      <View style={{ paddingHorizontal: spacing.lg }}>
+    <View style={[styles.pantalla, { paddingTop: insets.top + spacing.md }]}>
+      <View style={{ paddingHorizontal: paddingHorizontal }}>
         <Text style={typography.titulo}>Clases de Inglés</Text>
 
         {/* Buscador */}
@@ -50,7 +55,7 @@ export default function ClasesScreen({ navigation }) {
           )}
         </View>
 
-        {/* Filtros Rápido por Nivel */}
+        {/* Filtro Rápido */}
         <View style={{ marginVertical: spacing.md }}>
           <FlatList
             horizontal
@@ -74,31 +79,35 @@ export default function ClasesScreen({ navigation }) {
         </View>
       </View>
 
-      {/* Lista de Tarjetas */}
+      {/* Lista Principal de Clases con FlatList */}
       <FlatList
-        data={clasesFiltradas}
+        key={columnas}
+        numColumns={columnas}
+        data={resultados}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <Card
-            clase={item}
-            onPress={() => alert(`Seleccionaste: ${item.titulo}`)}
-          />
+          <View style={{ flex: 1, paddingHorizontal: spacing.xs }}>
+            <Card
+              clase={item}
+              onPress={() => navigation?.navigate('DetalleClase', { clase: item })}
+            />
+          </View>
         )}
         ListEmptyComponent={
           <View style={styles.vacioContenedor}>
             <Text style={typography.secundario}>No se encontraron resultados.</Text>
           </View>
         }
-        contentContainerStyle={styles.lista}
+        contentContainerStyle={[styles.lista, { paddingHorizontal }]}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  pantalla: { 
-    flex: 1, 
-    backgroundColor: colors.fondo 
+  pantalla: {
+    flex: 1,
+    backgroundColor: colors.fondo,
   },
   buscador: {
     flexDirection: 'row',
@@ -112,11 +121,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.borde,
   },
-  input: { 
-    flex: 1, 
-    fontSize: 14, 
-    color: colors.texto, 
-    paddingVertical: 0 
+  input: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.texto,
+    paddingVertical: 0,
   },
   chip: {
     paddingVertical: spacing.sm,
@@ -131,16 +140,15 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primario,
     borderColor: colors.primario,
   },
-  textoChip: { 
-    fontSize: 13, 
-    fontWeight: '600', 
-    color: colors.textoSuave 
+  textoChip: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: colors.textoSuave,
   },
-  textoChipActivo: { 
-    color: '#FFFFFF' 
+  textoChipActivo: {
+    color: '#FFFFFF',
   },
   lista: {
-    paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xl,
   },
   vacioContenedor: {

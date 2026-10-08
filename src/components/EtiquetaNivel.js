@@ -1,24 +1,26 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import { colors, radius, spacing, typography, coloresPorNivel } from '../theme';
 
 export default function EtiquetaNivel({ nivel }) {
+  const colorFondo = coloresPorNivel[nivel] || colors.primario;
+
   return (
-    <View style={styles.contenedor}>
+    <View style={[styles.etiqueta, { backgroundColor: colorFondo }]}>
       <Text style={styles.texto}>{nivel}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  contenedor: {
-    paddingVertical: 3,
-    paddingHorizontal: 2,
-    borderRadius: 50, // Equivalente a un borde redondo completo
-    borderWidth: 1,
+  etiqueta: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: radius.sm,
+    alignSelf: 'flex-start',
   },
   texto: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 0.3,
+    ...typography.etiqueta,
+    color: '#FFFFFF',
   },
 });
