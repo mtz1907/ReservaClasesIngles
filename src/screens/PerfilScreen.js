@@ -101,3 +101,4 @@ const styles = StyleSheet.create({
   input: { backgroundColor: colors.superficie },
   boton: { marginTop: spacing.md, paddingVertical: spacing.xs },
 });
+
