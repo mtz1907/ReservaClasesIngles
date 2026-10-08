@@ -4,6 +4,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Card from '../components/Card';
+import EstadoVacio from '../components/EstadoVacio';
 import { CLASES, NIVELES } from '../data/clases';
 import { colors, spacing, radius, typography } from '../theme';
 import useResponsive from '../hooks/useResponsive';
@@ -79,7 +80,7 @@ export default function ClasesScreen({ navigation }) {
         </View>
       </View>
 
-      {/* Lista Principal de Clases con FlatList */}
+      {/* Lista Principal de Clases */}
       <FlatList
         key={columnas}
         numColumns={columnas}
@@ -94,9 +95,11 @@ export default function ClasesScreen({ navigation }) {
           </View>
         )}
         ListEmptyComponent={
-          <View style={styles.vacioContenedor}>
-            <Text style={typography.secundario}>No se encontraron resultados.</Text>
-          </View>
+          <EstadoVacio
+            icono="search-outline"
+            titulo="No encontramos resultados"
+            mensaje="Intenta con otro término o cambia el filtro de nivel."
+          />
         }
         contentContainerStyle={[styles.lista, { paddingHorizontal }]}
       />
@@ -150,9 +153,5 @@ const styles = StyleSheet.create({
   },
   lista: {
     paddingBottom: spacing.xl,
-  },
-  vacioContenedor: {
-    alignItems: 'center',
-    marginTop: spacing.xxl,
   },
 });
