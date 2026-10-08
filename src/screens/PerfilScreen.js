@@ -102,3 +102,4 @@ const styles = StyleSheet.create({
   boton: { marginTop: spacing.md, paddingVertical: spacing.xs },
 });
 
+
