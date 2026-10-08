@@ -1,36 +1,34 @@
-import React, { createContext, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, useState } from 'react';
 
-// Clave única asignada para guardar las reservas de esta app
-const CLAVE_RESERVAS = '@reservaIngles';
+const ReservaContext = createContext();
 
-export const reservasContext = createContext(null);
-
-export function ReservaProvider({ children }) {
+export const ReservaProvider = ({ children }) => {
   const [reservas, setReservas] = useState([]);
-  const [cargando, setCargando] = useState(true);
 
-  // Cargar reservas guardadas al iniciar la aplicación (Get Item + JSON.parse)
-  useEffect(() => {
-    const cargarReservas = async () => {
-      try {
-        const guardado = await AsyncStorage.getItem(CLAVE_RESERVAS);
-        if (guardado !== null) {
-          setReservas(JSON.parse(guardado));
-        }
-      } catch (error) {
-        console.log('Error leyendo las reservas:', error);
-      } finally {
-        setCargando(false);
-      }
-    };
+  const agregarReserva = (clase) => {
+    setReservas((prev) => {
+      // Evita duplicados si la clase ya existe
+      const yaExiste = prev.some((r) => r.id === clase.id);
+      if (yaExiste) return prev;
+      return [...prev, clase];
+    });
+  };
 
-    cargarReservas();
-  }, []);
+  const cancelarReserva = (id) => {
+    setReservas((prev) => prev.filter((item) => item.id !== id));
+  };
 
   return (
-    <reservasContext.Provider value={{ reservas, setReservas, cargando }}>
+    <ReservaContext.Provider value={{ reservas, agregarReserva, cancelarReserva }}>
       {children}
-    </reservasContext.Provider>
+    </ReservaContext.Provider>
   );
-}
+};
+
+export const useReserva = () => {
+  const context = useContext(ReservaContext);
+  if (!context) {
+    throw new Error('useReserva debe usarse dentro de un ReservaProvider');
+  }
+  return context;
+};

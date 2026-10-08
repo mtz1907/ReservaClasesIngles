@@ -1,12 +1,14 @@
-import { useContext } from 'react';
-import { reservasContext } from '../context/reservasContext';
+import { useReserva } from '../context/reservasContext';
 
-export default function useReserva() {
-  const contexto = useContext(reservasContext);
+// Dentro de tu pantalla de clases o detalle:
+const { agregarReserva } = useReserva();
 
-  if (!contexto) {
-    throw new Error('useReserva debe usarse dentro de ReservaProvider');
-  }
-
-  return contexto;
-}
+const manejarReserva = (clase) => {
+  agregarReserva({
+    id: clase.id || Date.now().toString(),
+    titulo: clase.titulo || clase.nombre || 'Clase de Inglés',
+    horario: clase.horario || 'Por confirmar',
+    profesor: clase.profesor || 'Sin asignar',
+  });
+  Alert.alert('Éxito', 'Clase reservada correctamente');
+};

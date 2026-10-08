@@ -1,73 +1,46 @@
 import React from 'react';
-import { View, Text, FlatList, StyleSheet, Pressable } from 'react-native';
-import Ionicons from '@expo/vector-icons/Ionicons';
-import useReserva from '../hooks/useReserva';
-import EstadoVacio from '../components/EstadoVacio';
-import { colors, spacing, radius, typography } from '../theme';
+import { View, FlatList, StyleSheet } from 'react-native';
+import { Card, Title, Paragraph, Button, Text } from 'react-native-paper';
+import { useReserva } from '../context/reservasContext';
 
 export default function ReservasScreen() {
-  const { reservas, setReservas } = useReserva();
+  const { reservas = [], cancelarReserva } = useReserva() || {};
 
-  const cancelarReserva = (idClase) => {
-    const filtradas = reservas.filter((item) => item.id !== idClase);
-    setReservas(filtradas);
-  };
+  if (!reservas || reservas.length === 0) {
+    return (
+      <View style={styles.center}>
+        <Text variant="titleMedium">No tienes reservas activas en este momento.</Text>
+      </View>
+    );
+  }
 
   return (
-    <View style={styles.pantalla}>
-      <Text style={[typography.titulo, { margin: spacing.lg }]}>Mis Reservas</Text>
-
+    <View style={styles.container}>
       <FlatList
         data={reservas}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => (item?.id ? item.id.toString() : index.toString())}
         renderItem={({ item }) => (
-          <View style={styles.tarjetaReserva}>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.tituloClase}>{item.titulo}</Text>
-              <Text style={typography.secundario}>
-                Profesor: {item.profesor?.nombre || 'Docente'}
-              </Text>
-              <Text style={styles.infoDetalle}>
-                Nivel: {item.nivel} • Duración: {item.duracion} min
-              </Text>
-            </View>
-            <Pressable
-              style={styles.botonCancelar}
-              onPress={() => cancelarReserva(item.id)}
-            >
-              <Ionicons name="trash-outline" size={20} color={colors.peligro || '#FF4D4D'} />
-            </Pressable>
-          </View>
+          <Card style={styles.card}>
+            <Card.Content>
+              <Title>{item?.titulo}</Title>
+              <Paragraph>📌 Tipo: {item?.tipo} ({item?.precio})</Paragraph>
+              <Paragraph>⏰ Horario: {item?.horario}</Paragraph>
+              <Paragraph>👨‍🏫 Profesor: {item?.profesor}</Paragraph>
+            </Card.Content>
+            <Card.Actions>
+              <Button mode="outlined" textColor="red" onPress={() => cancelarReserva && cancelarReserva(item?.id)}>
+                Cancelar Reserva
+              </Button>
+            </Card.Actions>
+          </Card>
         )}
-        ListEmptyComponent={
-          <EstadoVacio
-            icono="calendar-outline"
-            titulo="No tienes reservas activas"
-            mensaje="Explora el catálogo de clases y agenda tu primera sesión."
-          />
-        }
-        contentContainerStyle={{
-          paddingHorizontal: spacing.lg,
-          paddingBottom: spacing.xl,
-        }}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  pantalla: { flex: 1, backgroundColor: colors.fondo, paddingTop: spacing.xl },
-  tarjetaReserva: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.superficie,
-    borderRadius: radius.lg,
-    padding: spacing.lg,
-    marginBottom: spacing.md,
-    borderWidth: 1,
-    borderColor: colors.borde,
-  },
-  tituloClase: { fontSize: 16, fontWeight: '700', color: colors.texto },
-  infoDetalle: { fontSize: 12, color: colors.primario, fontWeight: '600', marginTop: spacing.xs },
-  botonCancelar: { padding: spacing.sm },
+  container: { flex: 1, padding: 16 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  card: { marginBottom: 12, borderRadius: 12 },
 });

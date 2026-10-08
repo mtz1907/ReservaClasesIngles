@@ -1,105 +1,130 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, ScrollView, Alert } from 'react-native';
-import { TextInput, Button, Title, Card } from 'react-native-paper';
+import React, { useState } from 'react';
+import { View, StyleSheet, ScrollView, Alert } from 'react-native';
+import { TextInput, Button, Card, Title, Paragraph, List, Avatar, Divider } from 'react-native-paper';
 import useAlmacenamiento from '../hooks/useAlmacenamiento';
-import { colors, spacing } from '../theme';
 
 export default function PerfilScreen() {
-  const [perfilGuardado, guardarPerfil, cargado] = useAlmacenamiento('@perfilEstudiante', {
+  const [perfiles, guardarPerfiles] = useAlmacenamiento('lista_perfiles', []);
+  
+  const [formulario, setFormulario] = useState({
     nombre: '',
     apellido: '',
+    documento: '',
     nivelIngles: '',
     telefono: '',
-    documento: '',
   });
 
-  const [nombre, setNombre] = useState('');
-  const [apellido, setApellido] = useState('');
-  const [nivelIngles, setNivelIngles] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [documento, setDocumento] = useState('');
-
-  useEffect(() => {
-    if (cargado && perfilGuardado) {
-      setNombre(perfilGuardado.nombre || '');
-      setApellido(perfilGuardado.apellido || '');
-      setNivelIngles(perfilGuardado.nivelIngles || '');
-      setTelefono(perfilGuardado.telefono || '');
-      setDocumento(perfilGuardado.documento || '');
+  const manejarGuardar = async () => {
+    if (!formulario.nombre || !formulario.documento) {
+      Alert.alert('Error', 'El nombre y documento son obligatorios');
+      return;
     }
-  }, [cargado, perfilGuardado]);
 
-  const handleGuardar = () => {
-    const nuevoPerfil = { nombre, apellido, nivelIngles, telefono, documento };
-    guardarPerfil(nuevoPerfil);
-    Alert.alert('Éxito', 'Información de perfil actualizada correctamente.');
+    const nuevoPerfil = { ...formulario, id: Date.now().toString() };
+    const listaActualizada = [...(perfiles || []), nuevoPerfil];
+    
+    await guardarPerfiles(listaActualizada);
+    
+    setFormulario({
+      nombre: '',
+      apellido: '',
+      documento: '',
+      nivelIngles: '',
+      telefono: '',
+    });
+    
+    Alert.alert('Éxito', 'Perfil registrado con éxito');
   };
 
   return (
-    <ScrollView style={styles.contenedor}>
-      <Card style={styles.tarjeta}>
-        <Card.Content style={styles.contenido}>
-          <Title style={styles.titulo}>Perfil del Estudiante</Title>
-
+    <ScrollView contentContainerStyle={styles.container}>
+      <Card style={styles.cardForm}>
+        <Card.Content>
+          <Title style={styles.tituloForm}>Registrar Estudiante</Title>
+          
           <TextInput
             label="Nombre"
-            value={nombre}
-            onChangeText={setNombre}
-            mode="outlined"
+            value={formulario.nombre}
+            onChangeText={(text) => setFormulario({ ...formulario, nombre: text })}
             style={styles.input}
+            mode="outlined"
           />
           <TextInput
             label="Apellido"
-            value={apellido}
-            onChangeText={setApellido}
-            mode="outlined"
+            value={formulario.apellido}
+            onChangeText={(text) => setFormulario({ ...formulario, apellido: text })}
             style={styles.input}
+            mode="outlined"
           />
           <TextInput
-            label="Documento de Identidad"
-            value={documento}
-            onChangeText={setDocumento}
+            label="Documento"
+            value={formulario.documento}
+            onChangeText={(text) => setFormulario({ ...formulario, documento: text })}
             keyboardType="numeric"
-            mode="outlined"
             style={styles.input}
+            mode="outlined"
           />
           <TextInput
-            label="Nivel de Inglés (A1, A2, B1, B2, C1)"
-            value={nivelIngles}
-            onChangeText={setNivelIngles}
-            mode="outlined"
+            label="Nivel de Inglés"
+            value={formulario.nivelIngles}
+            onChangeText={(text) => setFormulario({ ...formulario, nivelIngles: text })}
             style={styles.input}
+            mode="outlined"
           />
           <TextInput
             label="Teléfono"
-            value={telefono}
-            onChangeText={setTelefono}
+            value={formulario.telefono}
+            onChangeText={(text) => setFormulario({ ...formulario, telefono: text })}
             keyboardType="phone-pad"
-            mode="outlined"
             style={styles.input}
+            mode="outlined"
           />
 
-          <Button
-            mode="contained"
-            onPress={handleGuardar}
-            buttonColor={colors.primario}
-            style={styles.boton}
-          >
-            Guardar Información
+          <Button mode="contained" onPress={manejarGuardar} style={styles.button}>
+            Guardar Perfil
           </Button>
         </Card.Content>
       </Card>
+
+      <Title style={styles.sectionHeader}>Perfiles Registrados ({perfiles?.length || 0})</Title>
+      
+      {perfiles && perfiles.map((item) => (
+        <Card key={item.id} style={styles.cardPerfil}>
+          <List.Accordion
+            title={`${item.nombre} ${item.apellido}`}
+            description={`Doc: ${item.documento}`}
+            left={(props) => <Avatar.Icon {...props} icon="account" size={40} />}
+          >
+            <Divider />
+            <View style={styles.infoDetalle}>
+              <Paragraph style={styles.textoDetalle}>
+                📌 <Paragraph style={styles.bold}>Documento:</Paragraph> {item.documento}
+              </Paragraph>
+              <Paragraph style={styles.textoDetalle}>
+                🎓 <Paragraph style={styles.bold}>Nivel de Inglés:</Paragraph> {item.nivelIngles || 'No especificado'}
+              </Paragraph>
+              <Paragraph style={styles.textoDetalle}>
+                📞 <Paragraph style={styles.bold}>Teléfono:</Paragraph> {item.telefono || 'No especificado'}
+              </Paragraph>
+            </View>
+          </List.Accordion>
+        </Card>
+      ))}
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  contenedor: { flex: 1, backgroundColor: colors.fondo, padding: spacing.md },
-  tarjeta: { marginTop: spacing.xl, marginBottom: spacing.xl },
-  contenido: { gap: spacing.sm },
-  titulo: { textAlign: 'center', marginBottom: spacing.md },
-  input: { backgroundColor: colors.superficie },
-  boton: { marginTop: spacing.md, paddingVertical: spacing.xs },
+  container: { padding: 16 },
+  cardForm: { marginBottom: 20, borderRadius: 12 },
+  tituloForm: { marginBottom: 12 },
+  input: { marginBottom: 10 },
+  button: { marginTop: 8, paddingVertical: 4 },
+  sectionHeader: { marginBottom: 12 },
+  cardPerfil: { marginBottom: 10, borderRadius: 12, overflow: 'hidden' },
+  infoDetalle: { padding: 16, backgroundColor: '#f9f9f9' },
+  textoDetalle: { marginBottom: 6, fontSize: 14 },
+  bold: { fontWeight: 'bold' },
 });
 
 
