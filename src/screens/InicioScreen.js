@@ -15,26 +15,17 @@ export default function InicioScreen({ navigation }) {
       </View>
 
       <View style={styles.acciones}>
-        <Pressable
-          style={styles.tarjeta}
-          onPress={() => navigation.navigate('Clases')}
-        >
+        <Pressable style={styles.tarjeta} onPress={() => navigation.navigate('Inicio')}>
           <Ionicons name="book-outline" size={32} color={colors.primario} />
           <Text style={styles.textoTarjeta}>Explorar Clases</Text>
         </Pressable>
 
-        <Pressable
-          style={styles.tarjeta}
-          onPress={() => navigation.navigate('Reservas')}
-        >
+        <Pressable style={styles.tarjeta} onPress={() => navigation.navigate('Reservas')}>
           <Ionicons name="calendar-outline" size={32} color={colors.primario} />
           <Text style={styles.textoTarjeta}>Mis Reservas</Text>
         </Pressable>
 
-        <Pressable
-          style={styles.tarjeta}
-          onPress={() => navigation.navigate('Perfil')}
-        >
+        <Pressable style={styles.tarjeta} onPress={() => navigation.navigate('Perfil')}>
           <Ionicons name="person-outline" size={32} color={colors.primario} />
           <Text style={styles.textoTarjeta}>Mi Perfil</Text>
         </Pressable>
