@@ -15,7 +15,7 @@ export default function ClasesScreen({ navigation }) {
   const [nivelSeleccionado, setNivelSeleccionado] = useState('Todos');
   const [busqueda, setBusqueda] = useState('');
 
-  // Búsqueda memorizada con useMemo
+  // Búsqueda memorizada mediante useMemo
   const resultados = useMemo(() => {
     const textoBusqueda = busqueda.trim().toLowerCase();
 
@@ -55,7 +55,7 @@ export default function ClasesScreen({ navigation }) {
           )}
         </View>
 
-        {/* Filtro Rápido */}
+        {/* Filtro Rápido por Nivel (Chips) */}
         <View style={{ marginVertical: spacing.md }}>
           <FlatList
             horizontal

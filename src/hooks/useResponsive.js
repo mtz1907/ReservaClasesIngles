@@ -6,7 +6,7 @@ export default function useResponsive() {
   const esTablet = width >= 768;
   const esHorizontal = width > height;
 
-  // Sobrecarga de valores para diseño adaptativo
+  // Cálculo de columnas y espaciado según la pantalla
   const columnas = esTablet ? 2 : 1;
   const anchoTarjeta = esTablet ? 320 : Math.min(width * 0.9, 300);
   const paddingHorizontal = esTablet ? 32 : 16;
