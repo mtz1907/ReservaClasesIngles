@@ -4,7 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import ClasesScreen from './src/screens/ClasesScreen';
 import { colors } from './src/theme';
 
-// Configuración del Tema Global de Navegación
+// Tema global de navegación
 const temaNavegacion = {
   ...DefaultTheme,
   colors: {

@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, FlatList, StyleSheet, Pressable } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Card from '../components/Card';
 import { CLASES, NIVELES } from '../data/clases';
 import { colors, spacing, radius, typography } from '../theme';
 
 export default function ClasesScreen({ navigation }) {
+  const insets = useSafeAreaInsets();
   const [nivelSeleccionado, setNivelSeleccionado] = useState('Todos');
   const [busqueda, setBusqueda] = useState('');
 
-  // Filtrado de las clases dinámicamente según el nivel y el texto ingresado
+  // Filtrado dinámico
   const clasesFiltradas = CLASES.filter((clase) => {
     const coincideNivel =
       nivelSeleccionado === 'Todos' || clase.nivel === nivelSeleccionado;
@@ -22,49 +23,55 @@ export default function ClasesScreen({ navigation }) {
   });
 
   return (
-    <SafeAreaView style={styles.contenedor}>
-      {/* Encabezado */}
-      <Text style={typography.titulo}>Clases de Inglés</Text>
+    <View
+      style={[
+        styles.pantalla,
+        { paddingTop: insets.top + spacing.md }
+      ]}
+    >
+      <View style={{ paddingHorizontal: spacing.lg }}>
+        <Text style={typography.titulo}>Clases de Inglés</Text>
 
-      {/* Caja de Búsqueda con Ícono y Botón de Limpiar */}
-      <View style={styles.cajaBusqueda}>
-        <Ionicons name="search" size={18} color={colors.textoSuave} />
-        <TextInput
-          style={styles.inputBusqueda}
-          placeholder="Buscar por título o docente..."
-          placeholderTextColor={colors.textoSuave}
-          value={busqueda}
-          onChangeText={setBusqueda}
-          autoCorrect={false}
-        />
-        {busqueda.length > 0 && (
-          <Pressable onPress={() => setBusqueda('')}>
-            <Ionicons name="close-circle" size={18} color={colors.textoSuave} />
-          </Pressable>
-        )}
-      </View>
+        {/* Buscador */}
+        <View style={styles.buscador}>
+          <Ionicons name="search" size={18} color={colors.textoSuave} />
+          <TextInput
+            style={styles.input}
+            placeholder="Buscar por título o docente..."
+            placeholderTextColor={colors.textoSuave}
+            value={busqueda}
+            onChangeText={setBusqueda}
+            autoCorrect={false}
+          />
+          {busqueda.length > 0 && (
+            <Pressable onPress={() => setBusqueda('')}>
+              <Ionicons name="close-circle" size={18} color={colors.textoSuave} />
+            </Pressable>
+          )}
+        </View>
 
-      {/* Filtros Rápido por Nivel (Carrusel de Botones) */}
-      <View style={styles.contenedorFiltros}>
-        <FlatList
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          data={NIVELES}
-          keyExtractor={(item) => item}
-          renderItem={({ item }) => {
-            const activo = nivelSeleccionado === item;
-            return (
-              <Pressable
-                style={[styles.botonFiltro, activo && styles.botonFiltroActivo]}
-                onPress={() => setNivelSeleccionado(item)}
-              >
-                <Text style={[styles.textoFiltro, activo && styles.textoFiltroActivo]}>
-                  {item}
-                </Text>
-              </Pressable>
-            );
-          }}
-        />
+        {/* Filtros Rápido por Nivel */}
+        <View style={{ marginVertical: spacing.md }}>
+          <FlatList
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            data={NIVELES}
+            keyExtractor={(item) => item}
+            renderItem={({ item }) => {
+              const activo = nivelSeleccionado === item;
+              return (
+                <Pressable
+                  style={[styles.chip, activo && styles.chipActivo]}
+                  onPress={() => setNivelSeleccionado(item)}
+                >
+                  <Text style={[styles.textoChip, activo && styles.textoChipActivo]}>
+                    {item}
+                  </Text>
+                </Pressable>
+              );
+            }}
+          />
+        </View>
       </View>
 
       {/* Lista de Tarjetas */}
@@ -74,7 +81,7 @@ export default function ClasesScreen({ navigation }) {
         renderItem={({ item }) => (
           <Card
             clase={item}
-            onPress={() => alert(`Detalles de: ${item.titulo}`)}
+            onPress={() => alert(`Seleccionaste: ${item.titulo}`)}
           />
         )}
         ListEmptyComponent={
@@ -84,59 +91,56 @@ export default function ClasesScreen({ navigation }) {
         }
         contentContainerStyle={styles.lista}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  contenedor: {
-    flex: 1,
-    backgroundColor: colors.fondo,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
+  pantalla: { 
+    flex: 1, 
+    backgroundColor: colors.fondo 
   },
-  cajaBusqueda: {
+  buscador: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: spacing.sm,
     backgroundColor: colors.superficie,
     borderRadius: radius.md,
-    paddingHorizontal: spacing.md,
-    height: 44,
-    marginVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    height: 46,
+    marginTop: spacing.lg,
     borderWidth: 1,
     borderColor: colors.borde,
   },
-  inputBusqueda: {
-    flex: 1,
-    marginLeft: spacing.sm,
-    fontSize: 14,
-    color: colors.texto,
+  input: { 
+    flex: 1, 
+    fontSize: 14, 
+    color: colors.texto, 
+    paddingVertical: 0 
   },
-  contenedorFiltros: {
-    marginBottom: spacing.md,
-  },
-  botonFiltro: {
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.md,
+  chip: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.lg,
     borderRadius: radius.full,
     backgroundColor: colors.superficie,
-    marginRight: spacing.sm,
     borderWidth: 1,
     borderColor: colors.borde,
+    marginRight: spacing.sm,
   },
-  botonFiltroActivo: {
+  chipActivo: {
     backgroundColor: colors.primario,
     borderColor: colors.primario,
   },
-  textoFiltro: {
-    fontSize: 13,
-    color: colors.textoSuave,
-    fontWeight: '600',
+  textoChip: { 
+    fontSize: 13, 
+    fontWeight: '600', 
+    color: colors.textoSuave 
   },
-  textoFiltroActivo: {
-    color: '#FFF',
+  textoChipActivo: { 
+    color: '#FFFFFF' 
   },
   lista: {
+    paddingHorizontal: spacing.lg,
     paddingBottom: spacing.xl,
   },
   vacioContenedor: {
